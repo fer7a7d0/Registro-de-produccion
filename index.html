@@ -48,6 +48,21 @@
       text-align: left;
       color: #169721; /* color del ID de lote */
     }
+
+    /* Ocultar las columnas de Nombre y Área */
+    th:nth-child(2), td:nth-child(2),
+    th:nth-child(3), td:nth-child(3) {
+      display: none;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .button-row button {
+      flex: 1;
+    }
   </style>
 </head>
 <body>
@@ -176,13 +191,82 @@
         <input type="text" id="idlote" name="idlote" readonly required>
       </label>
     </div>
-    <button type="button" id="registrarBtn" style="width:100%;margin-top:18px;background:#1976d2;color:#fff;border:none;border-radius:7px;padding:12px 0;font-size:1em;font-weight:600;cursor:pointer;">Registrar</button>
-    <button type="button" id="nuevoRegistroBtn" style="width:100%;margin-top:10px;background:#e3f0ff;color:#1976d2;border:1.5px solid #1976d2;border-radius:7px;padding:10px 0;font-size:1em;font-weight:600;cursor:pointer;">Nuevo registro</button>
-    <button type="button" id="verTodosBtn" style="width:100%;margin-top:10px;background:#fff;color:#1976d2;border:1.5px solid #1976d2;border-radius:7px;padding:10px 0;font-size:1em;font-weight:600;cursor:pointer;">Ver todos los lotes</button>
+    <div class="button-row">
+      <button type="button" id="registrarBtn" style="background:#1976d2;color:#fff;border:none;border-radius:7px;padding:12px 0;font-size:1em;font-weight:600;cursor:pointer;">Registrar</button>
+      <button type="button" id="nuevoRegistroBtn" style="background:#e3f0ff;color:#1976d2;border:1.5px solid #1976d2;border-radius:7px;padding:10px 0;font-size:1em;font-weight:600;cursor:pointer;">Nuevo registro</button>
+    </div>
+    <button type="button" id="verTodosBtn" style="display:none;width:100%;margin-top:10px;background:#fff;color:#1976d2;border:1.5px solid #1976d2;border-radius:7px;padding:10px 0;font-size:1em;font-weight:600;cursor:pointer;">Ver todos los lotes</button>
+    <button type="button" id="modoSupervisorBtn" style="width:100%;margin-top:10px;background:#4caf50;color:#fff;border:none;border-radius:7px;padding:10px 0;font-size:1em;font-weight:600;cursor:pointer;">Modo supervisor</button>
+    <button type="button" id="modoUsuarioBtn" style="width:100%;margin-top:10px;background:#2196f3;color:#fff;border:none;border-radius:7px;padding:10px 0;font-size:1em;font-weight:600;cursor:pointer;">Modo usuario</button>
+    <button type="button" id="verTodosModoUsuarioBtn" style="display:none;width:100%;margin-top:10px;background:#fff;color:#1976d2;border:1.5px solid #1976d2;border-radius:7px;padding:10px 0;font-size:1em;font-weight:600;cursor:pointer;">Ver todos los lotes (modo usuario)</button>
     <div id="todos" style="margin-top:14px;"></div>
     <div id="resumen" style="margin-top:18px;"></div>
   
   </div>
+  <div id="access-module" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:2000;align-items:center;justify-content:center;">
+  <div style="background:#fff;padding:20px;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,0.2);width:300px;text-align:center;">
+    <h3 style="margin-bottom:15px;color:#1976d2;">Acceso de Supervisores</h3>
+    <label for="supervisor-key" style="display:block;margin-bottom:10px;color:#333;font-weight:500;">Ingrese su clave:</label>
+    <input id="supervisor-key" type="password" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:5px;margin-bottom:15px;" placeholder="Clave de acceso">
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button id="access-validate" style="background:#1976d2;color:#fff;border:none;border-radius:5px;padding:10px 20px;font-weight:600;cursor:pointer;">Validar</button>
+      <button id="access-cancel" style="background:#e3f0ff;color:#1976d2;border:1px solid #1976d2;border-radius:5px;padding:10px 20px;font-weight:600;cursor:pointer;">Cancelar</button>
+    </div>
+  </div>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const accessModule = document.getElementById('access-module');
+    const accessKeyInput = document.getElementById('supervisor-key');
+    const accessValidateBtn = document.getElementById('access-validate');
+    const accessCancelBtn = document.getElementById('access-cancel');
+
+    const supervisorKeys = {
+      supervisor1: '1111',
+      supervisor2: '2222',
+      supervisor3: '3333',
+      supervisor4: '4444'
+    };
+
+    function openAccessModule() {
+      accessModule.style.display = 'flex';
+      accessKeyInput.value = '';
+      accessKeyInput.focus();
+    }
+
+    function closeAccessModule() {
+      accessModule.style.display = 'none';
+    }
+
+    accessValidateBtn.addEventListener('click', function() {
+      const enteredKey = accessKeyInput.value.trim();
+      if (Object.values(supervisorKeys).includes(enteredKey)) {
+        alert('Acceso concedido');
+        closeAccessModule();
+
+        // Hide 'Modo supervisor' button
+        const modoSupervisorBtn = document.getElementById('modoSupervisorBtn');
+        if (modoSupervisorBtn) {
+          modoSupervisorBtn.style.display = 'none';
+        }
+
+        // Show 'Ver todos los lotes' button
+        const verTodosBtn = document.getElementById('verTodosBtn');
+        if (verTodosBtn) {
+          verTodosBtn.style.display = 'block';
+        }
+      } else {
+        alert('Clave incorrecta. Intente nuevamente.');
+        accessKeyInput.focus();
+      }
+    });
+
+    accessCancelBtn.addEventListener('click', closeAccessModule);
+
+    // Ejemplo: Abrir el módulo de acceso al cargar la página (puede ajustarse según necesidades)
+    // openAccessModule();
+  });
+</script>
   <script>
     // =============================
     // Generación automática de Id lote
@@ -504,17 +588,22 @@ let lotesPendientesIds = [];
             return;
           }
           let tabla = `<table style='width:100%;border-collapse:collapse;font-size:0.98em;'>`;
-          tabla += `<tr style='background:#e3f0ff;color:#1976d2;'><th style='border:1px solid #b6c6e3;padding:4px;'>Id lote</th><th style='border:1px solid #b6c6e3;padding:4px;'>Estado</th><th style='border:1px solid #b6c6e3;padding:4px;'>Acción</th></tr>`;
+          tabla += `<tr style='background:#e3f0ff;color:#1976d2;'><th style='border:1px solid #b6c6e3;padding:4px;'>Id lote</th><th style='border:1px solid #b6c6e3;padding:4px;'>Nombre</th><th style='border:1px solid #b6c6e3;padding:4px;'>Área</th><th style='border:1px solid #b6c6e3;padding:4px;'>Estado</th><th style='border:1px solid #b6c6e3;padding:4px;'>Acción</th></tr>`;
           lotes.forEach((lote, idx) => {
             const idLoteValue = lote['Id lote'] || '';
+            const nombreValue = lote['Nombre'] || '';
+            const areaValue = lote['Área'] || '';
             const estadoValue = (lote['Estado'] || '').toLowerCase();
             let color = '#1976d2';
             let bg = '#f5faff';
+
             if (estadoValue === 'rechazado') { color = '#d32f2f'; bg = '#ffebee'; }
             else if (estadoValue === 'validado') { color = '#388e3c'; bg = '#e8f5e9'; }
-            else if (estadoValue === 'pendiente') { color = '#1976d2'; bg = '#f5faff'; }
+
             tabla += `<tr>` +
               `<td style='border:1px solid #b6c6e3;padding:4px;'>${idLoteValue}</td>` +
+              `<td style='border:1px solid #b6c6e3;padding:4px;'>${nombreValue}</td>` +
+              `<td style='border:1px solid #b6c6e3;padding:4px;'>${areaValue}</td>` +
               `<td style='border:1px solid #b6c6e3;padding:4px;color:${color};background:${bg};font-weight:600;'>${lote['Estado'] || ''}</td>` +
               `<td style='border:1px solid #b6c6e3;padding:4px;'>
                 <button type='button' class='ver-resumen-todos-btn' data-idx='${idx}' title='Ver resumen' style='background:none;border:none;cursor:pointer;font-size:1.2em;color:${color};'>
@@ -531,194 +620,8 @@ let lotesPendientesIds = [];
             btn.addEventListener('click', function() {
               const lote = lotes[parseInt(this.getAttribute('data-idx'))];
               if (!lote) return;
-              // Cargar los datos del lote en el formulario principal y bloquear los campos
-              document.getElementById('idlote').value = lote['Id lote'] || '';
-              document.getElementById('idlote').readOnly = true;
-              const campos = [
-                { selector: 'input[name="nombre"]', value: lote['Nombre'] || '', prop: 'readOnly' },
-                { selector: 'select[name="turno"]', value: lote['Turno'] || '', prop: 'disabled' },
-                { selector: 'input[name="area"]', value: lote['Área'] || '', prop: 'readOnly' },
-                { selector: 'input[name="manifold"]', value: lote['Manifold'] || '', prop: 'readOnly' },
-                { selector: 'input[name="linea"]', value: lote['Línea'] || '', prop: 'readOnly' },
-                { selector: 'input[name="horainicial"]', value: lote['Hora inicial'] || '', prop: 'readOnly' },
-                { selector: 'input[name="horafinal"]', value: lote['Hora final'] || '', prop: 'readOnly' },
-                { selector: 'input[name="codigo"]', value: lote['Código'] || '', prop: 'readOnly' },
-                { selector: 'input[name="producto"]', value: lote['Producto'] || '', prop: 'readOnly' },
-                { selector: 'input[name="cilindros"]', value: lote['Cilindros'] || '', prop: 'readOnly' }
-              ];
-              campos.forEach(c => {
-                const el = document.querySelector(c.selector);
-                if (el) {
-                  el.value = c.value;
-                  if (c.prop === 'readOnly') el.readOnly = true;
-                  if (c.prop === 'disabled') el.disabled = true;
-                }
-              });
-              // Mostrar resumen igual que al registrar, pero con color según estado
-              const idlote = lote['Id lote'] || '';
-              const nombre = lote['Nombre'] || '';
-              const turno = lote['Turno'] || '';
-              const area = lote['Área'] || '';
-              const manifold = lote['Manifold'] || '';
-              const linea = lote['Línea'] || '';
-              function toTimeValue(val) {
-                if (!val) return '';
-                const isoMatch = val.match(/T(\d{2}):(\d{2})/);
-                if (isoMatch) return isoMatch[1] + ':' + isoMatch[2];
-                if (/^\d{2}:\d{2}$/.test(val)) return val;
-                if (/^\d{2}:\d{2}:\d{2}$/.test(val)) return val.slice(0,5);
-                if (/^\d{4}$/.test(val)) return val.slice(0,2)+":"+val.slice(2,4);
-                const ampmMatch = val.match(/^(\d{1,2}):(\d{2})\s*([ap]\.\?\s*m\.?)/i);
-                if (ampmMatch) {
-                  let hour = parseInt(ampmMatch[1], 10);
-                  const min = ampmMatch[2];
-                  const ampm = ampmMatch[3].toLowerCase();
-                  if (ampm.includes('p') && hour < 12) hour += 12;
-                  if (ampm.includes('a') && hour === 12) hour = 0;
-                  return (hour < 10 ? '0' : '') + hour + ':' + min;
-                }
-                return val;
-              }
-              const horainicial = toTimeValue(lote['Hora inicial'] || '');
-              const horafinal = toTimeValue(lote['Hora final'] || '');
-              const codigo = lote['Código'] || '';
-              const producto = lote['Producto'] || '';
-              const cilindros = lote['Cilindros'] || '';
-              const estadoValue = (lote['Estado'] || '').toLowerCase();
-              let color = '#1976d2';
-              let bg = '#f5faff';
-              let border = '#b6c6e3';
-              if (estadoValue === 'rechazado') { color = '#d32f2f'; bg = '#ffebee'; border = '#d32f2f'; }
-              else if (estadoValue === 'validado') { color = '#388e3c'; bg = '#e8f5e9'; border = '#43a047'; }
-              else if (estadoValue === 'pendiente') { color = '#1976d2'; bg = '#f5faff'; border = '#1976d2'; }
-              const resumen = `<b>Resumen del registro:</b><br>` +
-                `Id lote: ${idlote}<br>` +
-                `Nombre: ${nombre}<br>` +
-                `Turno: ${turno}<br>` +
-                `Área: ${area}<br>` +
-                `Número Manifold: ${manifold}<br>` +
-                `Número Línea: ${linea}<br>` +
-                `Hora inicial: ${horainicial}<br>` +
-                `Hora final: ${horafinal}<br>` +
-                `Código: ${codigo}<br>` +
-                `Producto: ${producto}<br>` +
-                `Cilindros: ${cilindros}`;
-              let resumenHtml = `<div style='background:${bg};border:1.5px solid ${border};border-radius:9px;box-shadow:0 2px 8px ${color}22;padding:14px 18px;color:${color};font-size:1.08em;font-weight:500;text-align:left;'>${resumen}`;
-              // Si el lote es pendiente, agregar botón para validar
-              if (estadoValue === 'pendiente') {
-                resumenHtml += `<div style='margin-top:14px;display:flex;gap:10px;justify-content:center;'>` +
-                  `<button id='validarDesdeResumenBtn' style='background:#ff9800;color:#fff;border:none;border-radius:7px;padding:10px 22px;font-size:1em;font-weight:600;cursor:pointer;'>Validar lote</button>` +
-                `</div>`;
-              }
-              // Si el lote es rechazado, agregar botón para modificar cilindros y validar
-              if (estadoValue === 'rechazado') {
-                resumenHtml += `<div style='margin-top:14px;display:flex;gap:10px;justify-content:center;'>` +
-                  `<button id='modificarCilindrosDesdeResumenBtn' style='background:#1976d2;color:#fff;border:none;border-radius:7px;padding:10px 22px;font-size:1em;font-weight:600;cursor:pointer;'>Ingresar cantidad correcta</button>` +
-                `</div>`;
-              }
-              resumenHtml += `</div>`;
-              document.getElementById('resumen').innerHTML = resumenHtml;
-              // Evento para validar desde el resumen
-              if (estadoValue === 'pendiente') {
-                setTimeout(function() {
-                  const btnValidar = document.getElementById('validarDesdeResumenBtn');
-                  if (btnValidar) {
-                    btnValidar.onclick = function() {
-                      // Abrir modal para validar cilindros
-                      const modal = document.getElementById('modal-cilindros');
-                      const input = document.getElementById('modal-cilindros-input');
-                      const titulo = document.getElementById('modal-cilindros-titulo');
-                      modal.style.display = 'flex';
-                      input.value = '';
-                      input.focus();
-                      titulo.textContent = `Valide la cantidad de cilindros del lote: ${idlote}`;
-                      // Función para cerrar modal
-                      function cerrarModal() {
-                        modal.style.display = 'none';
-                        input.value = '';
-                        document.getElementById('modal-cilindros-ok').onclick = null;
-                        document.getElementById('modal-cilindros-cancel').onclick = null;
-                      }
-                      document.getElementById('modal-cilindros-cancel').onclick = cerrarModal;
-                      document.getElementById('modal-cilindros-ok').onclick = function() {
-                        const cilindrosIngresados = input.value.trim();
-                        if (!/^[0-9]+$/.test(cilindrosIngresados)) {
-                          alert('Por favor, ingrese un número válido.');
-                          input.focus();
-                          return;
-                        }
-                        let estado = '';
-                        let mensaje = '';
-                        // Comparación robusta: elimina espacios y compara como números
-                        const valIngresado = parseInt(cilindrosIngresados.trim(), 10);
-                        const valRegistrado = parseInt((cilindros || '').toString().trim(), 10);
-                        if (!isNaN(valIngresado) && !isNaN(valRegistrado) && valIngresado === valRegistrado) {
-                          estado = 'Validado';
-                          mensaje = `✔️ El lote <b>${idlote}</b> ha sido validado correctamente. La cantidad de cilindros ingresada (<b>${cilindrosIngresados}</b>) coincide con la registrada en el sistema.`;
-                        } else {
-                          estado = 'Rechazado';
-                          mensaje = `❌ El lote <b>${idlote}</b> ha sido rechazado. La cantidad de cilindros ingresada (<b>${cilindrosIngresados}</b>) <b>NO coincide</b> con la registrada (<b>${cilindros}</b>). Por favor, verifique los datos.`;
-                        }
-                        document.getElementById('resumen').innerHTML = `<div style='background:${estado === 'Validado' ? '#e8f5e9' : '#ffebee'};border:1.5px solid ${estado === 'Validado' ? '#43a047' : '#d32f2f'};border-radius:9px;box-shadow:0 2px 8px rgba(67,160,71,0.08);padding:14px 18px;color:${estado === 'Validado' ? '#388e3c' : '#c62828'};font-size:1.08em;font-weight:500;text-align:left;'>${mensaje}</div>`;
-                        fetch('https://script.google.com/macros/s/AKfycbxzK-xJaggLLaNy7i2g5g--iTX-LX9qLb2WMg8uUFIDqVVzqAtYtL2Ag8OBSQ98N6AM/exec', {
-                          method: 'POST',
-                          mode: 'no-cors',
-                          headers: {
-                            'Content-Type': 'application/json'
-                          },
-                          body: JSON.stringify({ idlote, estadoValidacion: estado })
-                        });
-                        cerrarModal();
-                      };
-                    };
-                  }
-                }, 0);
-              }
-              // Evento para modificar cilindros y validar desde el resumen de rechazados
-              if (estadoValue === 'rechazado') {
-                setTimeout(function() {
-                  const btnModificar = document.getElementById('modificarCilindrosDesdeResumenBtn');
-                  if (btnModificar) {
-                    btnModificar.onclick = function() {
-                      // Abrir modal para ingresar cantidad correcta
-                      const modal = document.getElementById('modal-cilindros');
-                      const input = document.getElementById('modal-cilindros-input');
-                      const titulo = document.getElementById('modal-cilindros-titulo');
-                      modal.style.display = 'flex';
-                      input.value = '';
-                      input.focus();
-                      titulo.textContent = `Ingresa la cantidad correcta de cilindros del lote ${idlote}`;
-                      // Función para cerrar modal
-                      function cerrarModal() {
-                        modal.style.display = 'none';
-                        input.value = '';
-                        document.getElementById('modal-cilindros-ok').onclick = null;
-                        document.getElementById('modal-cilindros-cancel').onclick = null;
-                      }
-                      document.getElementById('modal-cilindros-cancel').onclick = cerrarModal;
-                      document.getElementById('modal-cilindros-ok').onclick = function() {
-                        const cilindrosIngresados = input.value.trim();
-                        if (!/^[0-9]+$/.test(cilindrosIngresados)) {
-                          alert('Por favor, ingrese un número válido.');
-                          input.focus();
-                          return;
-                        }
-                        // Aquí el lote pasa a validado, se actualiza en Sheets y se muestra mensaje
-                        fetch('https://script.google.com/macros/s/AKfycbxzK-xJaggLLaNy7i2g5g--iTX-LX9qLb2WMg8uUFIDqVVzqAtYtL2Ag8OBSQ98N6AM/exec', {
-                          method: 'POST',
-                          mode: 'no-cors',
-                          headers: {
-                            'Content-Type': 'application/json'
-                          },
-                          body: JSON.stringify({ idlote, Cilindros: cilindrosIngresados, estadoValidacion: 'Validado' })
-                        });
-                        document.getElementById('resumen').innerHTML = `<div style='background:#e8f5e9;border:1.5px solid #43a047;border-radius:9px;box-shadow:0 2px 8px rgba(67,160,71,0.08);padding:14px 18px;color:#388e3c;font-size:1.08em;font-weight:500;text-align:left;'>✔️ El lote <b>${idlote}</b> ha sido validado y la cantidad de cilindros actualizada a <b>${cilindrosIngresados}</b>.</div>`;
-                        cerrarModal();
-                      };
-                    };
-                  }
-                }, 0);
-              }
+              const estado = lote['Estado'] || '';
+              mostrarResumenLoteConBotones(lote, estado);
             });
           });
         })
@@ -755,6 +658,398 @@ let lotesPendientesIds = [];
       document.getElementById('btnLlenador').classList.remove('active');
       document.getElementById('btnLote').classList.remove('active');
     });
+
+    // =============================
+    // Función centralizada para mostrar resúmenes con lógica de botones
+    // =============================
+    function mostrarResumenLoteConBotones(lote, estado) {
+  const coloresEstado = {
+    validado: { color: '#388e3c', fondo: '#e8f5e9' },
+    rechazado: { color: '#d32f2f', fondo: '#ffebee' },
+    pendiente: { color: '#1976d2', fondo: '#f5faff' },
+  };
+
+  const estilos = coloresEstado[estado.toLowerCase()] || { color: '#1976d2', fondo: '#f5faff' };
+
+  const resumen = `<b>Resumen del registro:</b><br>` +
+    `Id lote: ${lote['Id lote'] || ''}<br>` +
+    `Nombre: ${lote['Nombre'] || ''}<br>` +
+    `Turno: ${lote['Turno'] || ''}<br>` +
+    `Área: ${lote['Área'] || ''}<br>` +
+    `Número Manifold: ${lote['Manifold'] || ''}<br>` +
+    `Número Línea: ${lote['Línea'] || ''}<br>` +
+    `Hora inicial: ${lote['Hora inicial'] || ''}<br>` +
+    `Hora final: ${lote['Hora final'] || ''}<br>` +
+    `Código: ${lote['Código'] || ''}<br>` +
+    `Producto: ${lote['Producto'] || ''}<br>` +
+    `Cilindros: ${lote['Cilindros'] || ''}`;
+
+  let resumenHtml = `<div style='background:${estilos.fondo};border:1.5px solid ${estilos.color};border-radius:9px;box-shadow:0 2px 8px rgba(25,118,210,0.06);padding:14px 18px;color:${estilos.color};font-size:1.08em;font-weight:500;text-align:left;'>${resumen}`;
+  // Botones adicionales según el estado
+  if (estado.toLowerCase() === 'pendiente') {
+    resumenHtml += `<div style='margin-top:14px;display:flex;gap:10px;justify-content:center;'>` +
+      `<button id='validarDesdeResumenBtn' style='background:#ff9800;color:#fff;border:none;border-radius:7px;padding:10px 22px;font-size:1em;font-weight:600;cursor:pointer;'>Validar lote</button>` +
+    `</div>`;
+  } else if (estado.toLowerCase() === 'rechazado') {
+    resumenHtml += `<div style='margin-top:14px;display:flex;gap:10px;justify-content:center;'>` +
+      `<button id='modificarCilindrosDesdeResumenBtn' style='background:#1976d2;color:#fff;border:none;border-radius:7px;padding:10px 22px;font-size:1em;font-weight:600;cursor:pointer;'>Ingresar cantidad correcta</button>` +
+    `</div>`;
+  }
+
+  resumenHtml += `</div>`;
+  document.getElementById('resumen').innerHTML = resumenHtml;
+
+  // Eventos para los botones
+  if (estado.toLowerCase() === 'pendiente') {
+    setTimeout(() => {
+      const btnValidar = document.getElementById('validarDesdeResumenBtn');
+      if (btnValidar) {
+        btnValidar.onclick = function() {
+          const modal = document.getElementById('modal-cilindros');
+          const input = document.getElementById('modal-cilindros-input');
+          const titulo = document.getElementById('modal-cilindros-titulo');
+          modal.style.display = 'flex';
+          input.value = '';
+          input.focus();
+          titulo.textContent = `Valide la cantidad de cilindros del lote: ${lote['Id lote']}`;
+
+          function cerrarModal() {
+            modal.style.display = 'none';
+            input.value = '';
+            document.getElementById('modal-cilindros-ok').onclick = null;
+            document.getElementById('modal-cilindros-cancel').onclick = null;
+          }
+
+          document.getElementById('modal-cilindros-cancel').onclick = cerrarModal;
+          document.getElementById('modal-cilindros-ok').onclick = async function() {
+            const cilindrosIngresados = input.value.trim();
+            if (!/^[0-9]+$/.test(cilindrosIngresados)) {
+              alert('Por favor, ingrese un número válido.');
+              input.focus();
+              return;
+            }
+            const valIngresado = parseInt(cilindrosIngresados, 10);
+            const valRegistrado = parseInt(lote['Cilindros'], 10);
+            const estado = valIngresado === valRegistrado ? 'Validado' : 'Rechazado';
+
+            // Actualizar en Google Sheets
+            const data = {
+                idlote: lote['Id lote'],
+                estadoValidacion: estado
+            };
+
+            try {
+                await fetch('https://script.google.com/macros/s/AKfycbxzK-xJaggLLaNy7i2g5g--iTX-LX9qLb2WMg8uUFIDqVVzqAtYtL2Ag8OBSQ98N6AM/exec', {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                document.getElementById('resumen').innerHTML = ` <div style="background:#e8f5e9;border:1.5px solid #43a047;border-radius:9px;box-shadow:0 2px 8px rgba(67,160,71,0.08);padding:14px 18px;color:#388e3c;font-size:1.08em;font-weight:500;text-align:left;"> ✅ El estado del lote ha sido actualizado a <b>${estado}</b>.</div>`;
+            } catch (error) {
+                console.error('Error al actualizar Google Sheets:', error);
+                alert('No se pudo actualizar el estado en Google Sheets.');
+            }
+
+            cerrarModal();
+          };
+        };
+      }
+    }, 0);
+  } else if (estado.toLowerCase() === 'rechazado') {
+    setTimeout(() => {
+        const btnModificar = document.getElementById('modificarCilindrosDesdeResumenBtn');
+        if (btnModificar) {
+            btnModificar.onclick = function() {
+                const modal = document.getElementById('modal-cilindros');
+                const input = document.getElementById('modal-cilindros-input');
+                const titulo = document.getElementById('modal-cilindros-titulo');
+                modal.style.display = 'flex';
+                input.value = '';
+                input.focus();
+                titulo.textContent = `Ingrese la cantidad correcta de cilindros para el lote ${lote['Id lote']}`;
+
+                function cerrarModal() {
+                    modal.style.display = 'none';
+                    input.value = '';
+                    document.getElementById('modal-cilindros-ok').onclick = null;
+                    document.getElementById('modal-cilindros-cancel').onclick = null;
+                }
+
+                document.getElementById('modal-cilindros-cancel').onclick = cerrarModal;
+                document.getElementById('modal-cilindros-ok').onclick = async function() {
+                    const nuevosCilindros = input.value.trim();
+                    if (!/^[0-9]+$/.test(nuevosCilindros)) {
+                        alert('Por favor, ingrese un número válido.');
+                        input.focus();
+                        return;
+                    }
+
+                    const valIngresado = parseInt(nuevosCilindros, 10);
+                    const estado = 'Validado';
+
+                    try {
+                        await fetch('https://script.google.com/macros/s/AKfycbxzK-xJaggLLaNy7i2g5g--iTX-LX9qLb2WMg8uUFIDqVVzqAtYtL2Ag8OBSQ98N6AM/exec', {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ idlote: lote['Id lote'], Cilindros: valIngresado, estadoValidacion: estado })
+                        });
+
+                        document.getElementById('resumen').innerHTML = `<div style='background:#e8f5e9;border:1.5px solid #43a047;border-radius:9px;box-shadow:0 2px 8px rgba(67,160,71,0.08);padding:14px 18px;color:#388e3c;font-size:1.08em;font-weight:500;text-align:left;'>✔️ El lote <b>${lote['Id lote']}</b> ha sido validado y la cantidad de cilindros actualizada a <b>${valIngresado}</b>.</div>`;
+                    } catch (error) {
+                        console.error('Error al actualizar Google Sheets:', error);
+                        alert('No se pudo actualizar el estado en Google Sheets. Intenta nuevamente.');
+                    }
+
+                    cerrarModal();
+                };
+            };
+        }
+    }, 0);
+  }
+}
   </script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Crear contenedor de filtros
+    const filtrosDiv = document.createElement('div');
+    filtrosDiv.id = 'filtros';
+    filtrosDiv.style = 'display: none; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;';
+
+    // Agregar campos de filtro
+    filtrosDiv.innerHTML = `
+      <input id='filtroFecha' type='date' style='flex: 1; padding: 8px; border-radius: 7px; border: 1.2px solid #b0b8c9; font-size: 1em;'>
+      <select id='filtroEstado' style='flex: 1; padding: 8px; border-radius: 7px; border: 1.2px solid #b0b8c9; font-size: 1em;'>
+        <option value=''>Estado</option>
+        <option value='pendiente'>Pendiente</option>
+        <option value='validado'>Validado</option>
+        <option value='rechazado'>Rechazado</option>
+      </select>
+      <input id='busquedaLotes' type='text' placeholder='Buscar...' style='flex: 1; padding: 8px; border-radius: 7px; border: 1.2px solid #b0b8c9; font-size: 1em;'>
+    `;
+
+    // Insertar filtros antes de la tabla
+    const todosDiv = document.getElementById('todos');
+    if (todosDiv) {
+      todosDiv.parentNode.insertBefore(filtrosDiv, todosDiv);
+    }
+
+    // Función para ocultar filtros al cambiar de sección
+    function ocultarFiltrosLotes() {
+      const filtrosDiv = document.getElementById('filtros');
+      if (filtrosDiv) filtrosDiv.style.display = 'none';
+    }
+
+    // Mostrar filtros al ver todos los lotes
+    function mostrarFiltrosLotes() {
+      const filtrosDiv = document.getElementById('filtros');
+      if (filtrosDiv) filtrosDiv.style.display = 'flex';
+    }
+
+    // Asociar ocultar filtros a los botones de cambio de sección
+    document.getElementById('nuevoRegistroBtn').addEventListener('click', ocultarFiltrosLotes);
+
+    // Mostrar filtros al ver todos los lotes
+    document.getElementById('verTodosBtn').addEventListener('click', mostrarFiltrosLotes);
+
+    // =============================
+    // Función de filtros para lotes
+    // =============================
+    function renderTablaLotes() {
+      const texto = document.getElementById('busquedaLotes').value.toLowerCase();
+      const estado = document.getElementById('filtroEstado').value;
+      const fecha = document.getElementById('filtroFecha').value;
+
+      // Ocultar el resumen al aplicar filtros
+      document.getElementById('resumen').innerHTML = '';
+
+      const filas = document.querySelectorAll('#todos table tr');
+      filas.forEach((fila, index) => {
+        if (index === 0) return; // Saltar la cabecera
+
+        const columnas = fila.querySelectorAll('td');
+        const idLote = columnas[0]?.textContent.trim() || ''; // Columna 0 (Id lote)
+        const nombre = columnas[1]?.textContent.toLowerCase().trim() || ''; // Columna 1 (Nombre)
+        const area = columnas[2]?.textContent.toLowerCase().trim() || ''; // Columna 2 (Área)
+        const estadoFila = columnas[3]?.textContent.toLowerCase().trim() || ''; // Columna 3 (Estado)    
+
+        let coincide = true;
+
+        // Filtro por texto (nombre, área,)
+        if (texto) {
+          coincide = (
+            idLote.toLowerCase().includes(texto) ||
+            nombre.includes(texto) ||
+            area.includes(texto)
+          );
+        }
+
+        // Filtro por estado
+        if (estado && coincide) {
+          coincide = estadoFila === estado;
+        }
+
+        // Filtro por fecha (busca en Id lote la fecha)
+        if (fecha && coincide) {
+          const fechaLote = idLote.split('-')[2]; // Extraer YYMMDD del Id lote
+          if (fechaLote && fechaLote.length === 6) {
+            const fechaInput = fecha.replace(/-/g, '').slice(2); // Convertir a YYMMDD
+            coincide = fechaLote === fechaInput;
+          } else {
+            coincide = false;
+          }
+        }
+
+        fila.style.display = coincide ? '' : 'none';
+      });
+    }
+
+    // Asignar eventos a los filtros
+    document.getElementById('filtroFecha').addEventListener('input', renderTablaLotes);
+    document.getElementById('filtroEstado').addEventListener('change', renderTablaLotes);
+    document.getElementById('busquedaLotes').addEventListener('input', renderTablaLotes);
+  });
+</script>
+<script>
+  document.getElementById('modoSupervisorBtn').addEventListener('click', function() {
+    const accessModule = document.getElementById('access-module');
+    const modoUsuarioBtn = document.getElementById('modoUsuarioBtn');
+
+    if (accessModule) {
+      accessModule.style.display = 'flex';
+      const accessKeyInput = document.getElementById('supervisor-key');
+      if (accessKeyInput) {
+        accessKeyInput.value = '';
+        accessKeyInput.focus();
+      }
+
+      // Mostrar el botón 'Modo usuario' al cancelar la validación
+      const accessCancelBtn = document.getElementById('access-cancel');
+      if (accessCancelBtn) {
+        accessCancelBtn.addEventListener('click', function() {
+          if (modoUsuarioBtn) {
+            modoUsuarioBtn.style.display = 'block';
+          }
+        });
+      }
+    }
+  });
+</script>
+<script>
+  document.getElementById('modoUsuarioBtn').addEventListener('click', function() {
+    const modoUsuarioBtn = document.getElementById('modoUsuarioBtn');
+    const verTodosModoUsuarioBtn = document.getElementById('verTodosModoUsuarioBtn');
+    const modoSupervisorBtn = document.getElementById('modoSupervisorBtn');
+
+    if (modoUsuarioBtn) {
+      modoUsuarioBtn.style.display = 'none';
+    }
+
+    if (verTodosModoUsuarioBtn) {
+      verTodosModoUsuarioBtn.style.display = 'block'; // Mostrar el botón 'Ver todos los lotes (modo usuario)'
+    }
+
+    if (modoSupervisorBtn) {
+      modoSupervisorBtn.style.display = 'none'; // Ocultar el botón 'Modo supervisor'
+    }
+  });
+</script>
+<script>
+  document.getElementById('modoSupervisorBtn').addEventListener('click', function() {
+    const modoUsuarioBtn = document.getElementById('modoUsuarioBtn');
+    if (modoUsuarioBtn) {
+      modoUsuarioBtn.style.display = 'none';
+    }
+  });
+</script>
+<script>
+  document.getElementById('verTodosModoUsuarioBtn').addEventListener('click', function() {
+    const todosDiv = document.getElementById('todos');
+    todosDiv.innerHTML = '<span style="color:#1976d2;">Cargando todos los lotes (modo usuario)...</span>';
+
+    fetch('https://script.google.com/macros/s/AKfycbxzK-xJaggLLaNy7i2g5g--iTX-LX9qLb2WMg8uUFIDqVVzqAtYtL2Ag8OBSQ98N6AM/exec')
+      .then(resp => resp.json())
+      .then(lotes => {
+        if (!Array.isArray(lotes) || lotes.length === 0) {
+          todosDiv.innerHTML = '<span style="color:#d32f2f;">No hay lotes registrados (modo usuario).</span>';
+          return;
+        }
+
+        let tabla = `<table style='width:100%;border-collapse:collapse;font-size:0.98em;'>`;
+        tabla += `<tr style='background:#e3f0ff;color:#1976d2;'>
+                    <th style='border:1px solid #b6c6e3;padding:4px;'>Id lote</th>
+                    <th style='border:1px solid #b6c6e3;padding:4px;'>Nombre</th>
+                    <th style='border:1px solid #b6c6e3;padding:4px;'>Área</th>
+                    <th style='border:1px solid #b6c6e3;padding:4px;'>Estado</th>
+                    <th style='border:1px solid #b6c6e3;padding:4px;'>Acción</th>
+                  </tr>`;
+
+        lotes.forEach((lote, idx) => {
+          const idLoteValue = lote['Id lote'] || '';
+          const nombreValue = lote['Nombre'] || '';
+          const areaValue = lote['Área'] || '';
+          const estadoValue = (lote['Estado'] || '').toLowerCase();
+          let color = '#1976d2';
+          let bg = '#f5faff';
+
+          if (estadoValue === 'rechazado') { color = '#d32f2f'; bg = '#ffebee'; }
+          else if (estadoValue === 'validado') { color = '#388e3c'; bg = '#e8f5e9'; }
+
+          tabla += `<tr>` +
+                    `<td style='border:1px solid #b6c6e3;padding:4px;'>${idLoteValue}</td>` +
+                    `<td style='border:1px solid #b6c6e3;padding:4px;'>${nombreValue}</td>` +
+                    `<td style='border:1px solid #b6c6e3;padding:4px;'>${areaValue}</td>` +
+                    `<td style='border:1px solid #b6c6e3;padding:4px;color:${color};background:${bg};font-weight:600;'>${lote['Estado'] || ''}</td>` +
+                    `<td style='border:1px solid #b6c6e3;padding:4px;'>
+                      <button type='button' class='ver-resumen-todos-btn' data-idx='${idx}' title='Ver resumen' style='background:none;border:none;cursor:pointer;font-size:1.2em;color:${color};'>
+                        <span style='font-size:1.3em;'>&#x1F50D;</span>
+                      </button>
+                    </td>` +
+                  `</tr>`;
+        });
+
+        tabla += `</table>`;
+        todosDiv.innerHTML = tabla;
+
+        // Asignar evento a los botones 'Ver resumen' de todos los lotes
+        document.querySelectorAll('.ver-resumen-todos-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const lote = lotes[parseInt(this.getAttribute('data-idx'))];
+            if (!lote) return;
+
+            const estado = (lote['Estado'] || '').toLowerCase();
+            let color = '#1976d2';
+            let bg = '#f5faff';
+
+            if (estado === 'rechazado') { color = '#d32f2f'; bg = '#ffebee'; }
+            else if (estado === 'validado') { color = '#388e3c'; bg = '#e8f5e9'; }
+
+            const resumen = `<b>Resumen del registro:</b><br>` +
+              `Id lote: ${lote['Id lote'] || ''}<br>` +
+              `Nombre: ${lote['Nombre'] || ''}<br>` +
+              `Turno: ${lote['Turno'] || ''}<br>` +
+              `Área: ${lote['Área'] || ''}<br>` +
+              `Número Manifold: ${lote['Manifold'] || ''}<br>` +
+              `Número Línea: ${lote['Línea'] || ''}<br>` +
+              `Hora inicial: ${lote['Hora inicial'] || ''}<br>` +
+              `Hora final: ${lote['Hora final'] || ''}<br>` +
+              `Código: ${lote['Código'] || ''}<br>` +
+              `Producto: ${lote['Producto'] || ''}<br>` +
+              `Cilindros: ${lote['Cilindros'] || ''}`;
+
+            document.getElementById('resumen').innerHTML = `<div style='background:${bg};border:1.5px solid ${color};border-radius:9px;box-shadow:0 2px 8px rgba(25,118,210,0.06);padding:14px 18px;color:${color};font-size:1.08em;font-weight:500;text-align:left;'>${resumen}</div>`;
+          });
+        });
+      })
+      .catch(() => {
+        todosDiv.innerHTML = '<span style="color:#d32f2f;">No se pudo obtener la lista de lotes (modo usuario).</span>';
+      });
+  });
+</script>
 </body>
 </html>
