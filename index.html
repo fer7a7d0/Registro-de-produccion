@@ -195,9 +195,9 @@
       <button type="button" id="registrarBtn" style="background:#1976d2;color:#fff;border:none;border-radius:7px;padding:12px 0;font-size:1em;font-weight:600;cursor:pointer;">Registrar</button>
       <button type="button" id="nuevoRegistroBtn" style="background:#e3f0ff;color:#1976d2;border:1.5px solid #1976d2;border-radius:7px;padding:10px 0;font-size:1em;font-weight:600;cursor:pointer;">Nuevo registro</button>
     </div>
-    <button type="button" id="verTodosBtn" style="display:none;width:100%;margin-top:10px;background:#fff;color:#1976d2;border:1.5px solid #1976d2;border-radius:7px;padding:10px 0;font-size:1em;font-weight:600;cursor:pointer;">Ver todos los lotes</button>
-    <button type="button" id="modoSupervisorBtn" style="width:100%;margin-top:10px;background:#4caf50;color:#fff;border:none;border-radius:7px;padding:10px 0;font-size:1em;font-weight:600;cursor:pointer;">Modo supervisor</button>
-    <button type="button" id="modoUsuarioBtn" style="width:100%;margin-top:10px;background:#2196f3;color:#fff;border:none;border-radius:7px;padding:10px 0;font-size:1em;font-weight:600;cursor:pointer;">Modo usuario</button>
+    <button type="button" id="verTodosBtn" style="display:none;width:100%;margin-top:10px;background:#fff;color:#1976d2;border:1.5px solid #1976d2;border-radius:7px;padding:10px 0;font-size:1em;font-weight:600;cursor:pointer;">Ver todos los lotes (modo supervisor)</button>
+    <button type="button" id="modoSupervisorBtn" style="width:100%;margin-top:10px;background:#fff;color:#1976d2;border:1.5px solid #1976d2;border-radius:7px;padding:10px 0;font-size:1em;font-weight:600;cursor:pointer;">Modo supervisor</button>
+    <button type="button" id="modoUsuarioBtn" style="width:100%;margin-top:10px;background:#fff;color:#1976d2;border:1.5px solid #1976d2;border-radius:7px;padding:10px 0;font-size:1em;font-weight:600;cursor:pointer;">Modo usuario</button>
     <button type="button" id="verTodosModoUsuarioBtn" style="display:none;width:100%;margin-top:10px;background:#fff;color:#1976d2;border:1.5px solid #1976d2;border-radius:7px;padding:10px 0;font-size:1em;font-weight:600;cursor:pointer;">Ver todos los lotes (modo usuario)</button>
     <div id="todos" style="margin-top:14px;"></div>
     <div id="resumen" style="margin-top:18px;"></div>
@@ -241,7 +241,6 @@
     accessValidateBtn.addEventListener('click', function() {
       const enteredKey = accessKeyInput.value.trim();
       if (Object.values(supervisorKeys).includes(enteredKey)) {
-        alert('Acceso concedido');
         closeAccessModule();
 
         // Hide 'Modo supervisor' button
@@ -747,8 +746,19 @@ let lotesPendientesIds = [];
                     },
                     body: JSON.stringify(data)
                 });
-                document.getElementById('resumen').innerHTML = ` <div style="background:#e8f5e9;border:1.5px solid #43a047;border-radius:9px;box-shadow:0 2px 8px rgba(67,160,71,0.08);padding:14px 18px;color:#388e3c;font-size:1.08em;font-weight:500;text-align:left;"> ✅ El estado del lote ha sido actualizado a <b>${estado}</b>.</div>`;
-            } catch (error) {
+                                if (estado.toLowerCase() === 'rechazado') {
+                document.getElementById('resumen').innerHTML = `
+                <div style="background:#ffebee;border:1.5px solid #d32f2f;border-radius:9px;box-shadow:0 2px 8px rgba(211,47,47,0.08);padding:14px 18px;color:#c62828;font-size:1.08em;font-weight:500;text-align:left;">
+                ❌ El estado del lote ha sido actualizado a <b>${estado}</b>.
+                </div>`;
+                } else {
+                document.getElementById('resumen').innerHTML = `
+                <div style="background:#e8f5e9;border:1.5px solid #43a047;border-radius:9px;box-shadow:0 2px 8px rgba(67,160,71,0.08);padding:14px 18px;color:#388e3c;font-size:1.08em;font-weight:500;text-align:left;">
+                ✅ El estado del lote ha sido actualizado a <b>${estado}</b>.
+                </div>`;
+            }
+
+              } catch (error) {
                 console.error('Error al actualizar Google Sheets:', error);
                 alert('No se pudo actualizar el estado en Google Sheets.');
             }
@@ -980,6 +990,27 @@ let lotesPendientesIds = [];
           return;
         }
 
+        // Crear contenedor de filtros
+        const filtrosDiv = document.createElement('div');
+        filtrosDiv.id = 'filtrosModoUsuario';
+        filtrosDiv.style = 'display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;';
+
+        // Agregar campos de filtro
+        filtrosDiv.innerHTML = `
+          <input id='filtroFechaModoUsuario' type='date' style='flex: 1; padding: 8px; border-radius: 7px; border: 1.2px solid #b0b8c9; font-size: 1em;'>
+          <select id='filtroEstadoModoUsuario' style='flex: 1; padding: 8px; border-radius: 7px; border: 1.2px solid #b0b8c9; font-size: 1em;'>
+            <option value=''>Estado</option>
+            <option value='pendiente'>Pendiente</option>
+            <option value='validado'>Validado</option>
+            <option value='rechazado'>Rechazado</option>
+          </select>
+          <input id='busquedaLotesModoUsuario' type='text' placeholder='Buscar...' style='flex: 1; padding: 8px; border-radius: 7px; border: 1.2px solid #b0b8c9; font-size: 1em;'>
+        `;
+
+        // Insertar filtros antes de la tabla
+        todosDiv.innerHTML = '';
+        todosDiv.appendChild(filtrosDiv);
+
         let tabla = `<table style='width:100%;border-collapse:collapse;font-size:0.98em;'>`;
         tabla += `<tr style='background:#e3f0ff;color:#1976d2;'>
                     <th style='border:1px solid #b6c6e3;padding:4px;'>Id lote</th>
@@ -1014,12 +1045,67 @@ let lotesPendientesIds = [];
         });
 
         tabla += `</table>`;
-        todosDiv.innerHTML = tabla;
+        todosDiv.innerHTML += tabla;
 
-        // Asignar evento a los botones 'Ver resumen' de todos los lotes
-        document.querySelectorAll('.ver-resumen-todos-btn').forEach(btn => {
-          btn.addEventListener('click', function() {
-            const lote = lotes[parseInt(this.getAttribute('data-idx'))];
+        // Función de filtros para lotes
+        function renderTablaLotesModoUsuario() {
+          const texto = document.getElementById('busquedaLotesModoUsuario').value.toLowerCase();
+          const estado = document.getElementById('filtroEstadoModoUsuario').value;
+          const fecha = document.getElementById('filtroFechaModoUsuario').value;
+
+          const filas = todosDiv.querySelectorAll('table tr');
+          filas.forEach((fila, index) => {
+            if (index === 0) return; // Saltar la cabecera
+
+            const columnas = fila.querySelectorAll('td');
+            const idLote = columnas[0]?.textContent.trim() || ''; // Columna 0 (Id lote)
+            const nombre = columnas[1]?.textContent.toLowerCase().trim() || ''; // Columna 1 (Nombre)
+            const area = columnas[2]?.textContent.toLowerCase().trim() || ''; // Columna 2 (Área)
+            const estadoFila = columnas[3]?.textContent.toLowerCase().trim() || ''; // Columna 3 (Estado)
+
+            let coincide = true;
+
+            // Filtro por texto (nombre, área,)
+            if (texto) {
+              coincide = (
+                idLote.toLowerCase().includes(texto) ||
+                nombre.includes(texto) ||
+                area.includes(texto)
+              );
+            }
+
+            // Filtro por estado
+            if (estado && coincide) {
+              coincide = estadoFila === estado;
+            }
+
+            // Filtro por fecha (busca en Id lote la fecha)
+            if (fecha && coincide) {
+              const fechaLote = idLote.split('-')[2]; // Extraer YYMMDD del Id lote
+              if (fechaLote && fechaLote.length === 6) {
+                const fechaInput = fecha.replace(/-/g, '').slice(2); // Convertir a YYMMDD
+                coincide = fechaLote === fechaInput;
+              } else {
+                coincide = false;
+              }
+            }
+
+            fila.style.display = coincide ? '' : 'none';
+          });
+        }
+
+        // Asignar eventos a los filtros
+        document.getElementById('filtroFechaModoUsuario').addEventListener('input', renderTablaLotesModoUsuario);
+        document.getElementById('filtroEstadoModoUsuario').addEventListener('change', renderTablaLotesModoUsuario);
+        document.getElementById('busquedaLotesModoUsuario').addEventListener('input', renderTablaLotesModoUsuario);
+
+        // Reasignar eventos a los botones 'Ver resumen' después de aplicar filtros
+        todosDiv.addEventListener('click', function(event) {
+          if (event.target.closest('.ver-resumen-todos-btn')) {
+            const btn = event.target.closest('.ver-resumen-todos-btn');
+            const idx = parseInt(btn.getAttribute('data-idx'));
+            const lote = lotes[idx];
+
             if (!lote) return;
 
             const estado = (lote['Estado'] || '').toLowerCase();
@@ -1043,7 +1129,7 @@ let lotesPendientesIds = [];
               `Cilindros: ${lote['Cilindros'] || ''}`;
 
             document.getElementById('resumen').innerHTML = `<div style='background:${bg};border:1.5px solid ${color};border-radius:9px;box-shadow:0 2px 8px rgba(25,118,210,0.06);padding:14px 18px;color:${color};font-size:1.08em;font-weight:500;text-align:left;'>${resumen}</div>`;
-          });
+          }
         });
       })
       .catch(() => {
