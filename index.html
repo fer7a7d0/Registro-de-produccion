@@ -192,8 +192,8 @@
       </label>
     </div>
     <div class="button-row">
-      <button type="button" id="registrarBtn" style="background:#1976d2;color:#fff;border:none;border-radius:7px;padding:12px 0;font-size:1em;font-weight:600;cursor:pointer;">Registrar</button>
-      <button type="button" id="nuevoRegistroBtn" style="background:#e3f0ff;color:#1976d2;border:1.5px solid #1976d2;border-radius:7px;padding:10px 0;font-size:1em;font-weight:600;cursor:pointer;">Nuevo registro</button>
+      <button type="button" id="registrarBtn" style="background:#1976d2;color:#fff;border:none;border-radius:7px;padding:12px 0;font-size:1em;font-weight:600;cursor:pointer;">Registrar lote</button>
+      <button type="button" id="nuevoRegistroBtn" style="background:#e3f0ff;color:#1976d2;border:1.5px solid #1976d2;border-radius:7px;padding:10px 0;font-size:1em;font-weight:600;cursor:pointer;">Limpiar registro</button>
     </div>
     <button type="button" id="verTodosBtn" style="display:none;width:100%;margin-top:10px;background:#fff;color:#1976d2;border:1.5px solid #1976d2;border-radius:7px;padding:10px 0;font-size:1em;font-weight:600;cursor:pointer;">Ver todos los lotes (modo supervisor)</button>
     <button type="button" id="modoSupervisorBtn" style="width:100%;margin-top:10px;background:#fff;color:#1976d2;border:1.5px solid #1976d2;border-radius:7px;padding:10px 0;font-size:1em;font-weight:600;cursor:pointer;">Modo supervisor</button>
@@ -207,7 +207,7 @@
   <div style="background:#fff;padding:20px;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,0.2);width:300px;text-align:center;">
     <h3 style="margin-bottom:15px;color:#1976d2;">Acceso de Supervisores</h3>
     <label for="supervisor-key" style="display:block;margin-bottom:10px;color:#333;font-weight:500;">Ingrese su clave:</label>
-    <input id="supervisor-key" type="password" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:5px;margin-bottom:15px;" placeholder="Clave de acceso">
+    <input id="supervisor-key" type="password" inputmode="numeric" pattern="[0-9]*" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:5px;margin-bottom:15px;" placeholder="Clave de acceso">
     <div style="display:flex;gap:10px;justify-content:center;">
       <button id="access-validate" style="background:#1976d2;color:#fff;border:none;border-radius:5px;padding:10px 20px;font-weight:600;cursor:pointer;">Validar</button>
       <button id="access-cancel" style="background:#e3f0ff;color:#1976d2;border:1px solid #1976d2;border-radius:5px;padding:10px 20px;font-weight:600;cursor:pointer;">Cancelar</button>
@@ -222,10 +222,10 @@
     const accessCancelBtn = document.getElementById('access-cancel');
 
     const supervisorKeys = {
-      supervisor1: '1111',
-      supervisor2: '2222',
-      supervisor3: '3333',
-      supervisor4: '4444'
+      "Fernado Moreno": '1111',
+      "Christian Molina": '2222',
+      "Humberto Huerta": '3333',
+      "Supervisor 4": '4444'
     };
 
     function openAccessModule() {
@@ -1136,6 +1136,40 @@ let lotesPendientesIds = [];
         todosDiv.innerHTML = '<span style="color:#d32f2f;">No se pudo obtener la lista de lotes (modo usuario).</span>';
       });
   });
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const accessValidateBtn = document.getElementById('access-validate');
+  const resumenDiv = document.getElementById('resumen');
+
+  accessValidateBtn.addEventListener('click', function() {
+    const enteredKey = document.getElementById('supervisor-key').value.trim();
+    const supervisorKeys = {
+      "Fernado Moreno": '1111',
+      "Christian Molina": '2222',
+      "Humberto Huerta": '3333',
+      "Supervisor 4": '4444'
+    };
+
+    if (Object.values(supervisorKeys).includes(enteredKey)) {
+      const nombreSupervisor = Object.keys(supervisorKeys).find(key => supervisorKeys[key] === enteredKey);
+
+      // Mostrar mensaje de bienvenida con diseño similar al estado "pendiente"
+      resumenDiv.innerHTML = `
+        <div style="background:#f5faff;border:1.5px solid #1976d2;border-radius:9px;box-shadow:0 2px 8px rgba(25,118,210,0.06);padding:14px 18px;color:#1976d2;font-size:1.08em;font-weight:500;text-align:left;">
+          👋 Bienvenido, <b>${nombreSupervisor}</b>, al <b>Modo Supervisor</b>. Aquí puedes:
+          <ul style="margin-top:10px;padding-left:20px;">
+            <li>🔍 Ver todos los lotes registrados.</li>
+            <li>✅ Validar lotes registrados.</li>
+            <li>❌ Rechazar lotes incorrectos.</li>
+            <li>✏️ Corregir la cantidad de cilindros en lotes rechazados.</li>
+          </ul>
+          ¡Gracias por supervisar el proceso!
+        </div>
+      `;
+    }
+  });
+});
 </script>
 </body>
 </html>
